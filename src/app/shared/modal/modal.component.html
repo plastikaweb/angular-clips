@@ -1,0 +1,16 @@
+<dialog
+  #baseDialog
+  (click)="modalService.toggle(id())"
+  class="fixed inset-0 z-50 w-3/6 overflow-y-auto text-white backdrop:bg-black/50 min-w-96"
+>
+  <div (click)="$event.stopPropagation()" class="flex flex-col p-4 bg-secondary">
+    <!--Title-->
+    <div class="flex items-center justify-between pb-4">
+      <ng-content select="[heading]"></ng-content>
+      <!-- Modal Close Button -->
+      <a href="#" (click)="modalService.toggle(id())" class="z-50 cursor-pointer modal-close">&#x2715;</a>
+    </div>
+    <!--Content-->
+    <ng-content></ng-content>
+  </div>
+</dialog>
