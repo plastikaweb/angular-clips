@@ -28,4 +28,10 @@
   @if (control().hasError('pattern')) {
     <p class="text-red-500">Field must match the pattern {{ control().getError('pattern').requiredPattern }}</p>
   }
+  @if (control().hasError('noMatch')) {
+    <p class="text-red-500">Passwords do not match</p>
+  }
+  @if (control().hasError('emailTaken')) {
+    <p class="text-red-500">Email is already in use</p>
+}
 }

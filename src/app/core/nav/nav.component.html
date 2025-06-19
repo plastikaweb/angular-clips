@@ -1,29 +1,35 @@
 <header id="header" class="bg-secondary">
   <nav class="container flex justify-start items-center px-4 py-8 mx-auto">
     <!-- App Name -->
-    <a class="mr-4 text-3xl font-bold text-indigo-400 uppercase" href="index.html">Clips</a>
+    <a class="mr-4 text-3xl font-bold text-indigo-400 uppercase" routerLink="/" >Clips</a>
 
     <div class="flex flex-grow items-center">
       <!-- Primary Navigation -->
       <ul class="flex flex-row mt-1">
         <!-- Navigation Links -->
-        @if (authService.authState()) {
+        @if (authService.authState$ | async) {
           <li>
-            <a class="px-2" href="#">Manage</a>
+            <a class="px-2"
+            routerLink="/"
+            routerLinkActive="text-indigo-400"
+            [routerLinkActiveOptions]="{exact: true}">Home</a>
+          </li>
+          <li routerLinkActive="text-indigo-400">
+            <a class="px-2" routerLink="/manage" [queryParams]="{sort: '1'}">Manage</a>
+          </li>
+          <li routerLinkActive="text-indigo-400">
+            <a class="px-2" routerLink="/upload">Upload</a>
           </li>
           <li>
-            <a class="px-2" href="#">Upload</a>
-          </li>
-          <li>
-            <a class="px-2" href="#">Logout</a>
+            <a class="px-2" href="#" (click)="authService.logout($event)">Logout</a>
           </li>
         } @else {
           <li>
             <a class="px-2" href="#" (click)="openModal($event)">Login / Register</a>
           </li>
         }
-        <li>
-          <a class="px-2" href="about.html">About</a>
+        <li routerLinkActive="text-indigo-400">
+          <a class="px-2" routerLink="/about">About</a>
         </li>
       </ul>
     </div>

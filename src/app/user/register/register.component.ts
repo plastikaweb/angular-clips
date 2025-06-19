@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { InputComponent } from '../../shared/input/input/input.component';
+import { isEmailTaken, matchFields } from './validators';
 
 @Component({
   selector: 'app-register',
@@ -18,12 +19,13 @@ export class RegisterComponent {
   alertMessage = signal('Please await, your account is being created');
   inSubmission = signal(false);
   authService = inject(AuthService);
+  isEmailTaken = inject(isEmailTaken);
 
   #fb = inject(FormBuilder);
 
   form = this.#fb.nonNullable.group({
     name: ['', { validators: [Validators.required, Validators.minLength(3)] }],
-    email: ['', { validators: [Validators.required, Validators.email] }],
+    email: ['', { validators: [Validators.required, Validators.email], asyncValidators: [this.isEmailTaken.validate] }],
     age: [18 , { validators: [Validators.required, Validators.min(18), Validators.max(120)] }],
     password: ['', {
       validators: [
@@ -34,7 +36,7 @@ export class RegisterComponent {
     }],
     confirmPassword: ['', { validators: [Validators.required] }],
     phoneNumber: ['', { validators: [Validators.required, Validators.minLength(11), Validators.maxLength(11)] }],
-  });
+  }, { validators: [matchFields('password', 'confirmPassword')] });
 
   async register() {
     this.inSubmission.set(true);
