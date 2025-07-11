@@ -18,10 +18,12 @@
     "@angular/platform-browser": "^19.2.14",
     "@angular/platform-browser-dynamic": "^19.2.14",
     "@angular/router": "^19.2.14",
+    "@types/uuid": "^10.0.0",
     "ngx-mask": "^19.0.7",
     "rxjs": "~7.8.0",
     "tailwind": "^2.3.1",
     "tslib": "^2.3.0",
+    "uuid": "^11.1.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
