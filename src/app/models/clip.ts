@@ -7,4 +7,5 @@ export interface Clip {
   fileName: string;
   clipUrl: string;  
   timestamp: Timestamp;
+  id?: string;
 }

@@ -20,6 +20,7 @@ export class ModalService {
   }
 
   toggle(id: string) {
+    console.log(id, this.modals())
     const modal = this.modals().find(m => m.id === id);
     if (!modal) return;
     modal.element.open ? modal.element.close() : modal.element.showModal();
