@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Clip } from '../../models/clip';
 import { ClipService } from '../../services/clip.service';
@@ -22,6 +22,7 @@ export class EditComponent {
   inSubmission = signal(false);
 
   #clipService = inject(ClipService);
+  update = output<Clip>();
 
   form = this.fb.group({
     id: [''],
@@ -32,7 +33,10 @@ export class EditComponent {
     effect(() => {
       this.form.controls.id.setValue(this.activeClip()?.id ?? '');
       this.form.controls.title.setValue(this.activeClip()?.title ?? '');
-    }); 
+
+      this.inSubmission.set(false);
+      this.showAlert.set(false);
+    }, { allowSignalWrites: true }); 
   }
 
   async submit() {
@@ -50,6 +54,13 @@ export class EditComponent {
       return;
     }
     
+    
+    const updatedClip = this.activeClip();
+
+    if (updatedClip) {
+      updatedClip.title = this.form.controls.title.value!;
+      this.update.emit(updatedClip);
+    }
 
     this.inSubmission.set(false);
     this.alertColor.set('green');

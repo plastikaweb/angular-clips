@@ -50,4 +50,4 @@
   </div>
 
   <!-- Edit Modal -->
-  <app-edit [activeClip]="activeClip()"></app-edit>
+  <app-edit [activeClip]="activeClip()" (update)="updateClip($event)"></app-edit>
