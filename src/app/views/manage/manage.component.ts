@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Clip } from '../../models/clip';
 import { ClipService } from '../../services/clip.service';
@@ -19,6 +19,12 @@ export class ManageComponent implements OnInit   {
   clips = signal<Clip[]>([]);
   activeClip = signal<Clip | null>(null);
   #modalService = inject(ModalService);
+  orderedClips = computed(() => {
+    return this.clips().sort((a, b) => {
+      return this.videoOrder() === '1' ? a.timestamp.toMillis() - b.timestamp.toMillis() : 
+      b.timestamp.toMillis() - a.timestamp.toMillis()
+    })
+  })
 
   async ngOnInit() {
       this.#route.queryParams.subscribe(params => {
@@ -58,5 +64,20 @@ export class ManageComponent implements OnInit   {
       }
     });
     this.clips.set(currentClips);
+  }
+
+  deleteClip(event: Event, clip: Clip) {
+    event.preventDefault();
+
+    this.clipService.deleteClip(clip);
+
+    const currentClips = this.clips();
+    currentClips.forEach((element, index) => {
+      if (element.id === clip.id) {
+        currentClips.splice(index, 1);
+      }
+    });
+    this.clips.set(currentClips);
+
   }
 }

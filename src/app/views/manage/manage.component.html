@@ -15,7 +15,7 @@
   <div class="container mx-auto my-8">
     <!-- Video List -->
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      @for(clip of clips(); track clip.id) {
+      @for(clip of orderedClips(); track clip.id) {
       <div class="flex flex-col justify-start mt-6 rounded-tl-2xl rounded-br-2xl shadow-xl bg-secondary">
         <a href="#">
           <img class="w-full rounded-tl-2xl card-img-top" src="assets/img/1.jpg" alt="">
@@ -39,7 +39,7 @@
           <a href="#"  (click)="openModal($event, clip)" class="flex-1 p-2 border-r-2 border-gray-700 transition border-right hover:text-indigo-400">
             <span class="text-base material-icons">build</span>
           </a>
-          <a href="#" class="flex-1 p-2 rounded-br-2xl transition hover:text-indigo-400">
+          <a href="#" (click)="deleteClip($event, clip)" class="flex-1 p-2 rounded-br-2xl transition hover:text-indigo-400">
             <span class="text-base material-icons">delete</span>
           </a>
         </div>
