@@ -17,6 +17,9 @@ import { ClipService } from '../../services/clip.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { EventBlockerDirective } from '../../shared/directives/event-blocker.directive';
 import { InputComponent } from '../../shared/input/input/input.component';
+import { FfmpegService } from '../../services/ffmpeg.service';
+import { combineLatestWith, forkJoin } from 'rxjs';
+import { fork } from 'child_process';
 
 @Component({
   selector: 'app-upload',
@@ -44,29 +47,44 @@ export class UploadComponent implements OnDestroy {
   #auth = inject(Auth);
   #clipService = inject(ClipService);
   #router = inject(Router);
-
+  ffmpeg = inject(FfmpegService);
   formBuilder = inject(FormBuilder);
   #storage = inject(Storage);
   clipTask: UploadTask | null = null;
+  screenshots = signal<string[]>([]);
+  selectedScreenshot = signal('');
+  screenshotTask?: UploadTask;
 
   form = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
   });
 
-  storeFile(event: Event) {
+  constructor() {
+    this.ffmpeg.init();
+  }
+
+  async storeFile(event: Event) {
+    if (this.ffmpeg.isRunning()) {
+      alert('Please wait for the previous upload to complete');
+      return;
+    }
     this.isDragOver.set(false);
     const file = (event as DragEvent).dataTransfer?.files.item(0) ?? null;
     if (file?.type !== 'video/mp4') {
       alert('Please upload a video file');
       return;
     }
+    const screenshots = await this.ffmpeg.getScreenshots(file);
+    this.screenshots.set(screenshots);
+    this.selectedScreenshot.set(screenshots[0]);
+
     this.form.controls.title.setValue(file.name.replace(/\.[^/.]+$/, ''));
     this.form.controls.title.markAsTouched();
     this.file.set(file);
     this.nextStep.set(true);
   }
 
-  uploadFile() {
+  async uploadFile() {
     this.showAlert.set(true);
     this.alertMessage.set('your clip is being uploaded');
     this.alertColor.set('blue');
@@ -78,16 +96,30 @@ export class UploadComponent implements OnDestroy {
     }
     const clipFileName = uuid();
     const clipPath = `clips/${clipFileName}.mp4`;
+    const screenshotBlob = await this.ffmpeg.blobFromUrl(this.selectedScreenshot());
+    const screenshotPath = `screenshots/${clipFileName}.png`;
     const clipRef = ref(this.#storage, clipPath);
     this.clipTask = uploadBytesResumable(clipRef, this.file() as File);
+
+    const screenshotRef = ref(this.#storage, screenshotPath);
+    this.screenshotTask = uploadBytesResumable(screenshotRef, screenshotBlob);
+
     this.form.disable();
 
-    fromTask(this.clipTask).subscribe({
-      next: (snapshot) => {
+    fromTask(this.clipTask).pipe(
+      combineLatestWith(fromTask(this.screenshotTask))
+    ).subscribe({
+      next: ([clipSnapshot, screenshotSnapshot ]) => {
+        this.form.disable();
+        const bytesUploaded = clipSnapshot.bytesTransferred + screenshotSnapshot.bytesTransferred;
+        const totalBytes = clipSnapshot.totalBytes + screenshotSnapshot.totalBytes;
 
-        const progress = snapshot.bytesTransferred / snapshot.totalBytes;
-        this.percentage.set(progress);
+        this.percentage.set(bytesUploaded / totalBytes);
       },
+      
+    });
+
+    forkJoin(fromTask(this.clipTask), fromTask(this.screenshotTask)).subscribe({
       error: (err) => {
         this.form.enable();
         this.alertMessage.set(`upload failed`);
@@ -99,13 +131,16 @@ export class UploadComponent implements OnDestroy {
       complete: async () => {
         this.form.enable();
         const clipUrl = await getDownloadURL(clipRef);
+        const screenshotUrl = await getDownloadURL(screenshotRef);
         this.clipTask = null;
+
         const clip = {
           uid: this.#auth.currentUser?.uid as string,
           displayName: this.#auth.currentUser?.displayName as string,
           title: this.form.controls.title.value,
           fileName: `${clipFileName}.mp4`,
           clipUrl,
+          screenshotUrl,
           timestamp: serverTimestamp() as Timestamp, 
         }
 

@@ -1,7 +1,23 @@
 <section class="container p-6 mx-auto my-8 bg-secondary">
   <div class="flex relative flex-col rounded">
     <div class="mb-6 font-bold">Upload Video</div>
-    @if (!nextStep()) {
+    @if(!ffmpeg.isReady()) {
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="size-24 text-center flex my-12 mx-auto animate-spin"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+      />
+    </svg>
+
+    } @else { @if (!nextStep()) {
     <div
       appEventBlocker
       (dragend)="isDragOver.set(false)"
@@ -16,6 +32,11 @@
       class="px-10 py-40 w-full text-xl text-center rounded border border-gray-400 border-dashed transition duration-500 cursor-pointer hover:text-white hover:bg-indigo-400 hover:border-indigo-400 hover:border-solid"
     >
       <h5>Drop your file here (mp4 only!)</h5>
+      @if (ffmpeg.isRunning()) {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-16 animate-spin mx-auto">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      }
     </div>
     } @else { @if (showAlert()) {
     <app-alert [color]="alertColor()">
@@ -28,7 +49,16 @@
 
     <form [formGroup]="form" (ngSubmit)="uploadFile()">
       <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3"></div>
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        @for (screenshot of screenshots(); track screenshot) {
+        <div class="border-8 cursor-pointer" [ngClass]="{ 'border-green-400': selectedScreenshot() === screenshot, 'border-transparent': selectedScreenshot() !== screenshot }">
+          <img
+            [src]="screenshot"
+            (click)="selectedScreenshot.set(screenshot)"
+            alt="">
+        </div>
+      }
+      </div>
 
       <div class="mt-4">
         <label class="block mb-4 text-xl">Title</label>
@@ -52,6 +82,6 @@
         </button>
       </div>
     </form>
-    }
+    } }
   </div>
 </section>
