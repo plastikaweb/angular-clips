@@ -34,5 +34,8 @@ export class ClipService {
     await deleteObject(storageRef);
     const clipRef = doc(this.#firestore, 'clips', clip.id as string);
     await deleteDoc(clipRef);
+
+    const screenshotRef = ref(this.storage, `screenshots/${clip.screenshotFileName}`);
+    await deleteObject(screenshotRef);
   }
 }

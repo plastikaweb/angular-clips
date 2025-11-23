@@ -8,5 +8,6 @@ export interface Clip {
   clipUrl: string;  
   screenshotUrl: string;
   timestamp: Timestamp;
+  screenshotFileName: string;
   id?: string;
 }

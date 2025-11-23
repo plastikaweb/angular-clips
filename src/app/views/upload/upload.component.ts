@@ -141,6 +141,7 @@ export class UploadComponent implements OnDestroy {
           fileName: `${clipFileName}.mp4`,
           clipUrl,
           screenshotUrl,
+          screenshotFileName: `${clipFileName}.png`,
           timestamp: serverTimestamp() as Timestamp, 
         }
 
