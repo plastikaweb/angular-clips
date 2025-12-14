@@ -32,7 +32,9 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "video.js/dist/video-js.css",
+              "@videojs/themes/dist/forest/index.css"
             ],
             "scripts": []
           },

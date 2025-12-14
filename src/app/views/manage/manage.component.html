@@ -18,17 +18,17 @@
       @for(clip of orderedClips(); track clip.id) {
       <div class="flex flex-col justify-start mt-6 rounded-tl-2xl rounded-br-2xl shadow-xl bg-secondary">
         <a href="#">
-          <img class="w-full rounded-tl-2xl card-img-top" src="assets/img/1.jpg" alt="">
+          <img class="w-full rounded-tl-2xl card-img-top" [src]="clip.screenshotUrl" crossorigin alt="">
         </a>
 
         <!-- Body -->
         <div class="p-6 text-2xl">
 
           <!-- Link -->
-          <a href="#" class="mb-2 font-bold">
+          <a [routerLink]="['/', 'clip', clip.id]" class="mb-2 font-bold">
             {{ clip.title }}
           </a>
-          <a href="#" class="px-2 py-1 ml-2 text-sm text-white bg-gray-400 rounded">
+          <a (click)="copyToClipboard($event, clip.id)" class="px-2 py-1 ml-2 text-sm text-white bg-gray-400 rounded">
             Copy Link
           </a>
 

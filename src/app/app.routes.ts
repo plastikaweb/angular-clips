@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, ResolveFn, Routes } from '@angular/router';
 
 import { AuthGuard, redirectUnauthorizedTo } from '@angular/fire/auth-guard';
 import { AboutComponent } from './views/about/about.component';
@@ -7,9 +7,15 @@ import { HomeComponent } from './views/home/home.component';
 import { ManageComponent } from './views/manage/manage.component';
 import { NotFoundComponent } from './views/not-found/not-found.component';
 import { UploadComponent } from './views/upload/upload.component';
+import { Clip } from './models/clip';
+import { inject } from '@angular/core';
+import { ClipService } from './services/clip.service';
 
 const redirectUnauthorizedToHome = () => redirectUnauthorizedTo('/');
 
+const clipResolver: ResolveFn<Clip | null> = (route: ActivatedRouteSnapshot) => {
+  return inject(ClipService).resolve(route.paramMap.get('id')!);
+};
 
 export const routes: Routes = [
   {
@@ -41,6 +47,9 @@ export const routes: Routes = [
   {
     path: 'clip/:id',
     component: ClipComponent,
+    resolve: {
+      clip: clipResolver,
+    },
   },
   {
     path: 'manage-clips',
